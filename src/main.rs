@@ -1,7 +1,5 @@
-#![allow(dead_code)]
-#![allow(unused_variables)]
 extern crate byteorder;
-use byteorder::{BigEndian, ReadBytesExt};
+use byteorder::{LittleEndian, ReadBytesExt};
 use std::num::Wrapping;
 use std::io::Cursor;
 
@@ -9,7 +7,7 @@ fn main() {
     //murmur3_32("Hello, world!", 24, 25)
     //println!("{:b}", rotl(134217728 as u32, 2));
     // 01110000 01100001 01101110 01100100
-    println!("{:?}", murmur3_32("panda", Wrapping(5), Wrapping(10)));
+    println!("{:?}", murmur3_32("kinkajou", Wrapping(8), Wrapping(0)));
 }
 
 fn murmur3_32(key: &str, length: Wrapping<u32>, seed: Wrapping<u32>) -> u32 {
@@ -26,8 +24,6 @@ fn murmur3_32(key: &str, length: Wrapping<u32>, seed: Wrapping<u32>) -> u32 {
     for chunk in key.as_bytes().chunks(4) {
         let mut final_bytes: Vec<u8>;
         let mut buf = Cursor::new(&chunk[..]);
-        //let mut final_bytes = vec![0; 4];
-        //let mut buf: Cursor<&[u8]>;
         let mut k: Wrapping<u32>;
 
         /* If we're on the last few bytes, we have to convert them to a vector, pad it, then take a slice. */
@@ -37,12 +33,8 @@ fn murmur3_32(key: &str, length: Wrapping<u32>, seed: Wrapping<u32>) -> u32 {
                 final_bytes.push(0);
             }
             buf = Cursor::new(&final_bytes[..]);
-        }
+            k = Wrapping(buf.read_u32::<LittleEndian>().unwrap());
 
-        k =  Wrapping(buf.read_u32::<BigEndian>().unwrap());
-
-        /* If chunk length is less than four, perform final loop step and break. */
-        if chunk.len() < 4 {
             k = k * c1;
             k = rotl(k, r1);
             k = k * c2;
@@ -50,6 +42,8 @@ fn murmur3_32(key: &str, length: Wrapping<u32>, seed: Wrapping<u32>) -> u32 {
             hash = hash ^ k;
             break;
         }
+
+        k =  Wrapping(buf.read_u32::<LittleEndian>().unwrap());
 
         k = k * c1;
         k = rotl(k, r1);
@@ -60,6 +54,7 @@ fn murmur3_32(key: &str, length: Wrapping<u32>, seed: Wrapping<u32>) -> u32 {
         hash = hash * m + n;
     }
 
+    /* Finalization. */
     hash = hash ^ length;
     hash = hash ^ (hash >> 16);
     hash = hash * Wrapping::<u32>(0x85EBCA6B);
