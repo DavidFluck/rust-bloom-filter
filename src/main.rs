@@ -24,8 +24,20 @@ fn murmur3_32(key: &str, length: Wrapping<u32>, seed: Wrapping<u32>) -> u32 {
 
     /* Iterate four bytes at a time. */
     for chunk in key.as_bytes().chunks(4) {
-        let mut buf = Cursor::new(&chunk[..]);
-        let mut k: Wrapping<u32> = Wrapping(buf.read_u32::<BigEndian>().unwrap());
+        //let mut buf = Cursor::new(&chunk[..]);
+        let mut final_bytes = vec![0; 4];
+        let mut buf: Cursor<&[u8]>;
+        let mut k: Wrapping<u32>;
+
+        final_bytes.clone_from_slice(chunk);
+        if chunk.len() < 4 {
+            buf = Cursor::new(&final_bytes[..]);
+        }
+        else {
+            buf = Cursor::new(&chunk[..]);
+        }
+
+        k =  Wrapping(buf.read_u32::<BigEndian>().unwrap());
 
         /* If chunk length is less than four, perform final loop step and break. */
         if chunk.len() < 4 {
