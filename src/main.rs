@@ -4,19 +4,17 @@ use std::num::Wrapping;
 use std::io::Cursor;
 
 fn main() {
-    //murmur3_32("Hello, world!", 24, 25)
-    //println!("{:b}", rotl(134217728 as u32, 2));
-    // 01110000 01100001 01101110 01100100
-    println!("{:?}", murmur3_32("kinkajou", Wrapping(8), Wrapping(0)));
+    println!("{:?}", murmur3_32("panda", Wrapping(10)));
 }
 
-fn murmur3_32(key: &str, length: Wrapping<u32>, seed: Wrapping<u32>) -> u32 {
+fn murmur3_32(key: &str, seed: Wrapping<u32>) -> u32 {
     let c1 = Wrapping::<u32>(0xCC9E2D51);
     let c2 = Wrapping::<u32>(0x1B873593);
     let r1 = 15;
     let r2 = 13;
     let m = Wrapping::<u32>(5);
     let n = Wrapping::<u32>(0xE6546B64);
+    let length = Wrapping(key.len() as u32);
 
     let mut hash = seed;
 
@@ -32,6 +30,7 @@ fn murmur3_32(key: &str, length: Wrapping<u32>, seed: Wrapping<u32>) -> u32 {
             while final_bytes.len() < 4 {
                 final_bytes.push(0);
             }
+
             buf = Cursor::new(&final_bytes[..]);
             k = Wrapping(buf.read_u32::<LittleEndian>().unwrap());
 
