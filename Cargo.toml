@@ -1,8 +1,9 @@
 [package]
 
-name = "hello_world"
+name = "bloom"
 version = "0.0.1"
 authors = [ "David Fluck <fluck.d@gmail.com>" ]
 
 [dependencies]
 byteorder = "0.3.13"
+bit-vec = "0.4.2"

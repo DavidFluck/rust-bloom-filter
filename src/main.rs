@@ -1,13 +1,23 @@
+//#![allow(dead_code)]
 extern crate byteorder;
+extern crate bit_vec;
+use bit_vec::BitVec;
 use byteorder::{LittleEndian, ReadBytesExt};
 use std::num::Wrapping;
 use std::io::Cursor;
 
 fn main() {
-    println!("{:?}", murmur3_32("panda", Wrapping(10)));
+    let mut bf = BitVec::from_elem(18, false);
+    // Test word is "hello";
+    let mut num = murmur3_32("hello there", 10);
+    let mut m = 18;
+    let mut k = 3;
+    let scale_num = num % m;
+    println!("scale_num: {:?}", scale_num);
+    //println!("{:?}", murmur3_32("hello", 10));
 }
 
-fn murmur3_32(key: &str, seed: Wrapping<u32>) -> u32 {
+fn murmur3_32(key: &str, seed: u32) -> u32 {
     let c1 = Wrapping::<u32>(0xCC9E2D51);
     let c2 = Wrapping::<u32>(0x1B873593);
     let r1 = 15;
@@ -16,7 +26,7 @@ fn murmur3_32(key: &str, seed: Wrapping<u32>) -> u32 {
     let n = Wrapping::<u32>(0xE6546B64);
     let length = Wrapping(key.len() as u32);
 
-    let mut hash = seed;
+    let mut hash = Wrapping(seed);
 
     /* Iterate four bytes at a time. */
     for chunk in key.as_bytes().chunks(4) {
