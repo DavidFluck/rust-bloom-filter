@@ -8,13 +8,36 @@ use std::io::Cursor;
 
 fn main() {
     let mut bf = BitVec::from_elem(18, false);
-    // Test word is "hello";
-    let mut num = murmur3_32("hello there", 10);
-    let mut m = 18;
-    let mut k = 3;
-    let scale_num = num % m;
-    println!("scale_num: {:?}", scale_num);
-    //println!("{:?}", murmur3_32("hello", 10));
+    let m = 18;
+    let k = 3;
+
+    /* Set each relevant bit in the bit vector. */
+    for x in 0..k {
+        let hash = murmur3_32("dogs", x);
+        println!("hash: {:?}", hash);
+
+        /* We need to get our hash value from [0, 2^32 - 1] to [0, m - 1]. This is slightly biased because we're constraining the range with a modulus, but it shouldn't negatively affect anything. TODO: source. */
+        let bloom_index = hash % m;
+        println!("bloom_index: {:?}", bloom_index);
+
+        bf.set(bloom_index as usize, true);
+    }
+
+    println!("{:?}", bf);
+}
+
+/* m: the number of bits in the bit vector.
+ * k: the number of hash functions to use (practically, a seed for the Murmur hash)
+ * bv: the bit vector which will be checked to determine set membership
+ */
+struct BloomFilter {
+    m: u32,
+    k: u32,
+    bv: BitVec,
+}
+
+impl BloomFilter {
+
 }
 
 fn murmur3_32(key: &str, seed: u32) -> u32 {
